@@ -61,15 +61,15 @@ app.delete('/api/persons/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
   const body = request.body
 
-  if (!body.name || !body.number)
-  {
-    return response.status(400).json({
-      error: 'Body is missing required fields.'
-    })
-  }
+  // if (!body.name || !body.number)
+  // {
+  //   return response.status(400).json({
+  //     error: 'Body is missing required fields.'
+  //   })
+  // }
 
   // Checking for duplicates
   Person.find({name: body.name}).then(person => {
@@ -85,15 +85,17 @@ app.post('/api/persons', (request, response) => {
       number: body.number
     })
   
-    contact.save().then(savedContact => {
-      response.json(savedContact)
-    })
+    contact.save()
+      .then(savedContact => {
+        response.json(savedContact)
+      })
+      .catch(error => next(error))
   })
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
   const id = request.params.id
-  const { number } = request.body
+  const { number, name } = request.body
 
   if (!number)
   {
@@ -108,6 +110,7 @@ app.put('/api/persons/:id', (request, response, next) => {
       }
 
       contact.number = number
+      contact.name = name
 
       return contact.save().then((updatedContact) => {
         response.json(updatedContact)
@@ -128,6 +131,10 @@ const errorHandler = (error, request, response, next) => {
   if (error.name === 'CastError')
   {
     return response.status(400).send({ error: "Malformed ID" })
+  }
+  else if (error.name === 'ValidationError')
+  {
+    return response.status(400).send({ error: error.message })
   }
 
   next(error)

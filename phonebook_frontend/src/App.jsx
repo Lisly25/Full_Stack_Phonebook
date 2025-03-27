@@ -104,7 +104,7 @@ const App = () => {
         }, 5000)
       })
       .catch(error => {
-        setNewError(`Failed add ${person.name}'s contact information to server`)
+        setNewError(`Failed to add ${person.name}'s contact information to server. Error reason: ${error.response.data.error}`)
         setTimeout(() => {
           setNewError(null)
         }, 5000

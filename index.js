@@ -39,10 +39,10 @@ const getCurrentTimestamp = () => {
   return timestamp
 }
 
-const generateID = () => {
-  id = Math.floor(Math.random() * 1000000000)
-  return id.toString()
-}
+// const generateID = () => {
+//   id = Math.floor(Math.random() * 1000000000)
+//   return id.toString()
+// }
 
 const doesNameAlreadyExist = (name) => {
   duplicate = contacts.find(contact => contact.name === name)
@@ -86,22 +86,22 @@ app.post('/api/persons', (request, response) => {
     })
   }
 
-  if (doesNameAlreadyExist(body.name))
-  {
-    return response.status(400).json({
-      error: 'Name must be unique'
-    })
-  }
+  // if (doesNameAlreadyExist(body.name))
+  // {
+  //   return response.status(400).json({
+  //     error: 'Name must be unique'
+  //   })
+  // }
 
-  const contact = {
-    id: generateID(),
+  const contact = new Person ({
+    // id: generateID(),
     name: body.name,
     number: body.number
-  }
+  })
 
-  contacts = contacts.concat(contact)
-
-  response.json(contact)
+  contact.save().then(savedContact => {
+    response.json(savedContact)
+  })
 })
 
 const PORT = process.env.PORT

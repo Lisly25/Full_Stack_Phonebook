@@ -78,7 +78,10 @@ const App = () => {
          )
           })
           .catch(error => {
-            setNewError(`Failed to update ${person.name}'s contact: it was deleted from the server`)
+            if (error.response.data.error)
+              setNewError(`Failed to update ${person.name}'s contact: ${error.response.data.error}`)
+            else
+              setNewError(`Failed to update ${person.name}'s contact: it was deleted from the server`)
             setTimeout(() => {
               setNewError(null)
             }, 5000

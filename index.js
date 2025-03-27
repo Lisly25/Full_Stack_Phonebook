@@ -71,9 +71,11 @@ app.get('/api/persons/:id', (request, response) => {
 
 app.delete('/api/persons/:id', (request, response) => {
   const delete_id = request.params.id
-  contacts = contacts.filter(contact => contact.id !== delete_id)
 
-  response.status(204).end()
+  Person.findByIdAndDelete(delete_id)
+    .then(result => {
+      response.status(204).end()
+    })  
 })
 
 app.post('/api/persons', (request, response) => {

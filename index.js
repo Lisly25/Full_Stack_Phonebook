@@ -116,6 +116,31 @@ app.post('/api/persons', (request, response) => {
   })
 })
 
+app.put('/api/persons/:id', (request, response, next) => {
+  const id = request.params.id
+  const { number } = request.body
+
+  if (!number)
+  {
+    return response.status(400).send({ error: "No number was given to update to" })
+  }
+
+  Person.findById(id)
+    .then(contact => {
+      if (!contact)
+      {
+        return response.status(404).end()
+      }
+
+      contact.number = number
+
+      return contact.save().then((updatedContact) => {
+        response.json(updatedContact)
+      })
+    })
+    .catch(error => next(error))
+})
+
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'Unknown endpoint' })
 }

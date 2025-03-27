@@ -10,29 +10,6 @@ app.use(express.json())
 morgan.token('body', (req, res) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
-let contacts = [
-    { 
-      "id": "1",
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": "2",
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": "3",
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": "4",
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]
-
 const getCurrentTimestamp = () => {
   const date = new Date()
   timestamp = `${date.toUTCString()}`
@@ -44,16 +21,12 @@ const getCurrentTimestamp = () => {
 //   return id.toString()
 // }
 
-const doesNameAlreadyExist = (name) => {
-  duplicate = contacts.find(contact => contact.name === name)
-
-  if (duplicate)
-    return true
-  return false
-}
-
-app.get('/info', (request, response) => {
-  response.send(`<div><p>Phonebook has info for ${contacts.length} people</p><p>${getCurrentTimestamp()}</p></div>`)
+app.get('/info', (request, response, next) => {
+  Person.find({}).then(contacts => {
+    console.log("Contact count in function:", contacts.length)
+    response.send(`<div><p>Phonebook has info for ${contacts.length} people</p><p>${getCurrentTimestamp()}</p></div>`)
+  })
+  .catch(error => next(error))
 })
 
 app.get('/api/persons', (request, response) => {
@@ -98,21 +71,23 @@ app.post('/api/persons', (request, response) => {
     })
   }
 
-  // if (doesNameAlreadyExist(body.name))
-  // {
-  //   return response.status(400).json({
-  //     error: 'Name must be unique'
-  //   })
-  // }
-
-  const contact = new Person ({
-    // id: generateID(),
-    name: body.name,
-    number: body.number
-  })
-
-  contact.save().then(savedContact => {
-    response.json(savedContact)
+  // Checking for duplicates
+  Person.find({name: body.name}).then(person => {
+    if (person.length !== 0)
+    {
+      return response.status(400).json({
+        error: 'Name must be unique'
+      })
+    }
+    const contact = new Person ({
+      // id: generateID(),
+      name: body.name,
+      number: body.number
+    })
+  
+    contact.save().then(savedContact => {
+      response.json(savedContact)
+    })
   })
 })
 

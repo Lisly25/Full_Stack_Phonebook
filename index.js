@@ -7,12 +7,12 @@ const app = express()
 
 app.use(express.static('dist'))
 app.use(express.json())
-morgan.token('body', (req, res) => JSON.stringify(req.body))
+morgan.token('body', (req) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
 const getCurrentTimestamp = () => {
   const date = new Date()
-  timestamp = `${date.toUTCString()}`
+  const timestamp = `${date.toUTCString()}`
   return timestamp
 }
 
@@ -23,16 +23,16 @@ const getCurrentTimestamp = () => {
 
 app.get('/info', (request, response, next) => {
   Person.find({}).then(contacts => {
-    console.log("Contact count in function:", contacts.length)
+    console.log('Contact count in function:', contacts.length)
     response.send(`<div><p>Phonebook has info for ${contacts.length} people</p><p>${getCurrentTimestamp()}</p></div>`)
   })
-  .catch(error => next(error))
+    .catch(error => next(error))
 })
 
 app.get('/api/persons', (request, response) => {
   Person.find({}).then(contacts => {
     response.json(contacts)
-  })  
+  })
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
@@ -56,6 +56,7 @@ app.delete('/api/persons/:id', (request, response, next) => {
 
   Person.findByIdAndDelete(delete_id)
     .then(result => {
+      console.log(result)
       response.status(204).end()
     })
     .catch(error => next(error))
@@ -72,7 +73,7 @@ app.post('/api/persons', (request, response, next) => {
   // }
 
   // Checking for duplicates
-  Person.find({name: body.name}).then(person => {
+  Person.find({ name: body.name }).then(person => {
     if (person.length !== 0)
     {
       return response.status(400).json({
@@ -84,7 +85,7 @@ app.post('/api/persons', (request, response, next) => {
       name: body.name,
       number: body.number
     })
-  
+
     contact.save()
       .then(savedContact => {
         response.json(savedContact)
@@ -99,7 +100,7 @@ app.put('/api/persons/:id', (request, response, next) => {
 
   if (!number)
   {
-    return response.status(400).send({ error: "No number was given to update to" })
+    return response.status(400).send({ error: 'No number was given to update to' })
   }
 
   Person.findById(id)
@@ -130,7 +131,7 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError')
   {
-    return response.status(400).send({ error: "Malformed ID" })
+    return response.status(400).send({ error: 'Malformed ID' })
   }
   else if (error.name === 'ValidationError')
   {
@@ -144,5 +145,5 @@ app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`)
+  console.log(`Server running on port ${PORT}`)
 })

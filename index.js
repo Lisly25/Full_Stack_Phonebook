@@ -64,16 +64,9 @@ app.get('/api/persons', (request, response) => {
 
 app.get('/api/persons/:id', (request, response) => {
   const id = request.params.id
-  const contact = contacts.find(contact => contact.id === id)
-
-  if (contact)
-  {
+  Person.findById(id).then(contact => {
     response.json(contact)
-  }
-  else
-  {
-    response.status(404).end()
-  }
+  })
 })
 
 app.delete('/api/persons/:id', (request, response) => {
